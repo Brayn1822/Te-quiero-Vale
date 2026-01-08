@@ -1,0 +1,44 @@
+.dog-container {
+  position: absolute;
+  bottom: 18vh;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+}
+
+svg {
+  width: 100%;
+}
+
+/* respiración */
+.dog {
+  animation: breathe 5s ease-in-out infinite;
+  transform-origin: center bottom;
+}
+
+@keyframes breathe {
+  0%,100% { transform: scaleY(1); }
+  50% { transform: scaleY(1.02); }
+}
+
+/* cabeza */
+.head {
+  transform-origin: center bottom;
+  animation: head 6s ease-in-out infinite;
+}
+
+@keyframes head {
+  0%,100% { transform: rotate(0deg); }
+  50% { transform: rotate(3deg); }
+}
+
+/* parpadeo natural */
+.eye {
+  transform-origin: center;
+  animation: blink 6s infinite;
+}
+
+@keyframes blink {
+  0%,95%,100% { transform: scaleY(1); }
+  96%,97% { transform: scaleY(0.1); }
+}
