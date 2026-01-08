@@ -1,107 +1,127 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Para Ti 🐶❤️</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bernés de Montaña 🐶</title>
 
-  <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
-      font-family: Arial, sans-serif;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+<style>
+  body {
+    margin: 0;
+    height: 100vh;
+    background: linear-gradient(180deg, #dfe9f3, #ffffff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+  }
 
-    .card {
-      background: white;
-      width: 90%;
-      max-width: 420px;
-      padding: 25px;
-      border-radius: 20px;
-      text-align: center;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      animation: aparecer 1.5s ease;
-      z-index: 10;
-    }
+  .card {
+    background: white;
+    border-radius: 20px;
+    padding: 20px;
+    width: 90%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  }
 
-    h1 {
-      color: #4a4a4a;
-      margin-bottom: 10px;
-    }
+  h1 {
+    margin-bottom: 10px;
+    color: #333;
+  }
 
-    p {
-      color: #555;
-      font-size: 16px;
-      line-height: 1.6;
-    }
+  p {
+    color: #555;
+    font-size: 16px;
+  }
 
-    @keyframes aparecer {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+  svg {
+    width: 100%;
+    max-width: 300px;
+    margin: 20px auto;
+  }
 
-    .dog {
-      position: fixed;
-      bottom: -40px;
-      animation: subir 8s linear forwards;
-      pointer-events: none;
-    }
+  /* Animación de respiración */
+  .dog {
+    animation: respirar 4s ease-in-out infinite;
+    transform-origin: center;
+  }
 
-    @keyframes subir {
-      from {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-      }
-      to {
-        transform: translateY(-120vh) scale(1.2);
-        opacity: 0;
-      }
-    }
-  </style>
+  @keyframes respirar {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.03); }
+  }
+
+  /* Movimiento de cola */
+  .tail {
+    transform-origin: top left;
+    animation: moverCola 1s ease-in-out infinite;
+  }
+
+  @keyframes moverCola {
+    0% { transform: rotate(10deg); }
+    50% { transform: rotate(-15deg); }
+    100% { transform: rotate(10deg); }
+  }
+</style>
 </head>
+
 <body>
 
-  <div class="card">
-    <h1>Para ti 🐶❤️</h1>
-    <p>
-      Como un Bernés de Montaña,
-      mi cariño por ti es grande,
-      leal y sincero.
-    </p>
-    <p>
-      Gracias por estar,
-      por acompañar
-      y por hacer mis días más bonitos ✨
-    </p>
-  </div>
+<div class="card">
+  <h1>Para ti 🐶❤️</h1>
+  <p>
+    Fuerte, leal y noble  
+    como un Bernés de Montaña.
+  </p>
 
-  <script>
-    function crearBernes() {
-      const dog = document.createElement("div");
-      dog.className = "dog";
-      dog.innerHTML = "🐶🐾";
-      dog.style.left = Math.random() * 100 + "vw";
-      dog.style.fontSize = (Math.random() * 20 + 30) + "px";
-      document.body.appendChild(dog);
+  <!-- BERNÉS DE MONTAÑA (SVG PURO) -->
+  <svg viewBox="0 0 300 300">
+    <g class="dog">
 
-      setTimeout(() => {
-        dog.remove();
-      }, 8000);
-    }
+      <!-- Cuerpo -->
+      <ellipse cx="150" cy="180" rx="80" ry="50" fill="#1b1b1b"/>
 
-    setInterval(crearBernes, 900);
-  </script>
+      <!-- Pecho blanco -->
+      <ellipse cx="150" cy="190" rx="20" ry="35" fill="#ffffff"/>
+
+      <!-- Cabeza -->
+      <circle cx="150" cy="100" r="45" fill="#1b1b1b"/>
+
+      <!-- Cara blanca -->
+      <ellipse cx="150" cy="110" rx="15" ry="25" fill="#ffffff"/>
+
+      <!-- Ojos -->
+      <circle cx="135" cy="95" r="5" fill="#000"/>
+      <circle cx="165" cy="95" r="5" fill="#000"/>
+
+      <!-- Nariz -->
+      <ellipse cx="150" cy="120" rx="6" ry="4" fill="#000"/>
+
+      <!-- Orejas -->
+      <ellipse cx="110" cy="95" rx="15" ry="30" fill="#1b1b1b"/>
+      <ellipse cx="190" cy="95" rx="15" ry="30" fill="#1b1b1b"/>
+
+      <!-- Patas -->
+      <rect x="110" y="220" width="20" height="40" rx="10" fill="#1b1b1b"/>
+      <rect x="170" y="220" width="20" height="40" rx="10" fill="#1b1b1b"/>
+
+      <!-- Cola -->
+      <rect class="tail" x="225" y="160" width="40" height="12" rx="6" fill="#1b1b1b"/>
+
+      <!-- Detalles marrones -->
+      <ellipse cx="120" cy="125" rx="10" ry="12" fill="#8b5a2b"/>
+      <ellipse cx="180" cy="125" rx="10" ry="12" fill="#8b5a2b"/>
+
+    </g>
+  </svg>
+
+  <p>
+    Gracias por ser  
+    mi lugar seguro 💕
+  </p>
+</div>
 
 </body>
 </html>
