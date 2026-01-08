@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Para Ti ❤️</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(120deg, #ff758c, #ff7eb3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Arial', sans-serif;
+      overflow: hidden;
+    }
+
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      text-align: center;
+      max-width: 400px;
+      animation: aparecer 2s ease;
+    }
+
+    h1 {
+      color: #ff4d6d;
+    }
+
+    p {
+      font-size: 18px;
+      color: #444;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .heart {
+      position: absolute;
+      color: red;
+      font-size: 20px;
+      animation: flotar 5s linear infinite;
+    }
+
+    @keyframes flotar {
+      from {
+        transform: translateY(100vh);
+        opacity: 1;
+      }
+      to {
+        transform: translateY(-10vh);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h1>Para la persona más importante ❤️</h1>
+    <p>
+      Cada línea aquí está escrita pensando en ti.  
+      Gracias por existir, por sonreír, por ser tú.
+    </p>
+    <p>
+      Esto es solo una pequeña forma de decirte  
+      lo mucho que te quiero 💕
+    </p>
+  </div>
+
+  <script>
+    function crearCorazon() {
+      const heart = document.createElement("div");
+      heart.className = "heart";
+      heart.innerHTML = "❤️";
+      heart.style.left = Math.random() * 100 + "vw";
+      heart.style.fontSize = Math.random() * 20 + 10 + "px";
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 5000);
+    }
+
+    setInterval(crearCorazon, 300);
+  </script>
+
+</body>
+</html>
