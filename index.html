@@ -1,99 +1,28 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bernés SVG</title>
-<style>
-  body{
-    margin:0;
-    background:#0b0f2a;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-  }
-  svg{
-    width:90%;
-    max-width:700px;
-  }
-</style>
+  <meta charset="UTF-8">
+  <title>Escena WOW SVG</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<svg viewBox="0 0 800 500">
+<div id="escena">
 
-  <!-- CUERPO -->
-  <path d="
-    M160 320
-    C100 320 80 270 120 250
-    C180 220 320 220 440 240
-    C560 260 680 300 660 350
-    C640 400 520 380 400 380
-    C280 380 200 360 160 320
-  " fill="#0e0e0e"/>
+  <!-- CIELO -->
+  <object id="cielo" type="image/svg+xml" data="Luna.svg"></object>
 
-  <!-- PECHO BLANCO -->
-  <path d="
-    M360 260
-    C340 300 350 350 390 380
-    C430 350 440 300 410 260
-  " fill="#ffffff"/>
+  <!-- ESTRELLAS (SVG generado por código) -->
+  <svg id="estrellas"></svg>
 
-  <!-- COLA -->
-  <path d="
-    M640 300
-    C720 260 760 300 740 330
-    C710 360 660 350 640 330
-  " fill="#0e0e0e"/>
+  <!-- PASTO + TULIPANES -->
+  <object id="pasto" type="image/svg+xml" data="Tulipan.svg"></object>
 
-  <!-- CABEZA -->
-  <path d="
-    M260 190
-    C230 130 260 80 330 80
-    C420 80 460 140 440 200
-    C420 260 300 260 260 190
-  " fill="#0e0e0e"/>
+  <!-- PERSONAJE -->
+  <object id="perrito" type="image/svg+xml" data="Perrito.svg"></object>
 
-  <!-- HOCICO -->
-  <path d="
-    M320 190
-    C330 230 370 230 380 190
-    C375 165 325 165 320 190
-  " fill="#ffffff"/>
+</div>
 
-  <!-- NARIZ -->
-  <ellipse cx="350" cy="215" rx="10" ry="6" fill="#000"/>
-
-  <!-- OREJA IZQUIERDA -->
-  <path d="
-    M240 190
-    C200 210 210 280 260 300
-    C290 260 280 210 260 190
-  " fill="#0e0e0e"/>
-
-  <!-- OREJA DERECHA -->
-  <path d="
-    M460 190
-    C500 210 490 280 440 300
-    C410 260 420 210 440 190
-  " fill="#0e0e0e"/>
-
-  <!-- OJOS -->
-  <ellipse cx="325" cy="175" rx="6" ry="5" fill="#000"/>
-  <ellipse cx="375" cy="175" rx="6" ry="5" fill="#000"/>
-
-  <!-- MARCAS FUEGO -->
-  <ellipse cx="300" cy="200" rx="14" ry="18" fill="#8b5a2b"/>
-  <ellipse cx="400" cy="200" rx="14" ry="18" fill="#8b5a2b"/>
-
-  <!-- PATAS -->
-  <rect x="260" y="360" width="30" height="80" rx="12" fill="#0e0e0e"/>
-  <rect x="330" y="360" width="30" height="80" rx="12" fill="#0e0e0e"/>
-  <rect x="430" y="360" width="30" height="80" rx="12" fill="#0e0e0e"/>
-  <rect x="500" y="360" width="30" height="80" rx="12" fill="#0e0e0e"/>
-
-</svg>
-
+<script src="script.js"></script>
 </body>
 </html>
