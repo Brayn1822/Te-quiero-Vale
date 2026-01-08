@@ -3,125 +3,184 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bernés de Montaña 🐶</title>
+<title>Bernés bajo la luna 🌕🐶</title>
 
 <style>
-  body {
-    margin: 0;
-    height: 100vh;
-    background: linear-gradient(180deg, #dfe9f3, #ffffff);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: Arial, sans-serif;
-  }
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(#050b2e, #0a1a4a);
+}
 
-  .card {
-    background: white;
-    border-radius: 20px;
-    padding: 20px;
-    width: 90%;
-    max-width: 420px;
-    text-align: center;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
-  }
+/* 🌙 LUNA */
+.moon {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  width: 140px;
+  height: 140px;
+  background: radial-gradient(circle, #fff, #ddd);
+  border-radius: 50%;
+  box-shadow: 0 0 60px rgba(255,255,255,0.6);
+}
 
-  h1 {
-    margin-bottom: 10px;
-    color: #333;
-  }
+/* ✨ ESTRELLAS */
+.star {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: white;
+  animation: twinkle 2s infinite alternate;
+}
 
-  p {
-    color: #555;
-    font-size: 16px;
-  }
+@keyframes twinkle {
+  from { opacity: 0.2; }
+  to { opacity: 1; }
+}
 
-  svg {
-    width: 100%;
-    max-width: 300px;
-    margin: 20px auto;
-  }
+/* 🌱 PASTO */
+.ground {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 35%;
+  background: linear-gradient(#0b3d0b, #0f5f0f);
+}
 
-  /* Animación de respiración */
-  .dog {
-    animation: respirar 4s ease-in-out infinite;
-    transform-origin: center;
-  }
+/* 🌷 TULIPANES */
+.tulip {
+  position: absolute;
+  bottom: 30px;
+  font-size: 24px;
+}
 
-  @keyframes respirar {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.03); }
-  }
+/* 🐶 CONTENEDOR */
+.dog-container {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 260px;
+  text-align: center;
+}
 
-  /* Movimiento de cola */
-  .tail {
-    transform-origin: top left;
-    animation: moverCola 1s ease-in-out infinite;
-  }
+/* 🐶 SVG */
+svg {
+  width: 260px;
+}
 
-  @keyframes moverCola {
-    0% { transform: rotate(10deg); }
-    50% { transform: rotate(-15deg); }
-    100% { transform: rotate(10deg); }
-  }
+/* ANIMACIONES */
+.walk {
+  animation: walk 1s infinite alternate;
+}
+
+@keyframes walk {
+  from { transform: translateX(-10px); }
+  to { transform: translateX(10px); }
+}
+
+/* PARPADEO */
+.eye {
+  animation: blink 5s infinite;
+  transform-origin: center;
+}
+
+@keyframes blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+
+/* CABEZA */
+.head {
+  transform-origin: center bottom;
+  animation: headMove 4s ease-in-out infinite;
+}
+
+@keyframes headMove {
+  0%,100% { transform: rotate(0deg); }
+  50% { transform: rotate(5deg); }
+}
 </style>
 </head>
 
 <body>
 
-<div class="card">
-  <h1>Para ti 🐶❤️</h1>
-  <p>
-    Fuerte, leal y noble  
-    como un Bernés de Montaña.
-  </p>
+<div class="moon"></div>
 
-  <!-- BERNÉS DE MONTAÑA (SVG PURO) -->
-  <svg viewBox="0 0 300 300">
-    <g class="dog">
+<!-- estrellas -->
+<script>
+for(let i=0;i<80;i++){
+  const s=document.createElement("div");
+  s.className="star";
+  s.style.left=Math.random()*100+"vw";
+  s.style.top=Math.random()*60+"vh";
+  s.style.animationDelay=Math.random()*2+"s";
+  document.body.appendChild(s);
+}
+</script>
 
-      <!-- Cuerpo -->
-      <ellipse cx="150" cy="180" rx="80" ry="50" fill="#1b1b1b"/>
+<div class="ground"></div>
 
-      <!-- Pecho blanco -->
-      <ellipse cx="150" cy="190" rx="20" ry="35" fill="#ffffff"/>
+<!-- tulipanes -->
+<script>
+for(let i=0;i<30;i++){
+  const t=document.createElement("div");
+  t.className="tulip";
+  t.innerHTML="🌷";
+  t.style.left=Math.random()*100+"vw";
+  document.body.appendChild(t);
+}
+</script>
 
-      <!-- Cabeza -->
-      <circle cx="150" cy="100" r="45" fill="#1b1b1b"/>
+<div class="dog-container">
+<svg viewBox="0 0 300 300" id="dog">
+  <!-- cuerpo -->
+  <ellipse cx="150" cy="190" rx="90" ry="45" fill="#111"/>
+  <ellipse cx="150" cy="200" rx="25" ry="40" fill="#fff"/>
 
-      <!-- Cara blanca -->
-      <ellipse cx="150" cy="110" rx="15" ry="25" fill="#ffffff"/>
+  <!-- cabeza -->
+  <g class="head">
+    <circle cx="150" cy="110" r="45" fill="#111"/>
+    <ellipse cx="150" cy="120" rx="15" ry="28" fill="#fff"/>
 
-      <!-- Ojos -->
-      <circle cx="135" cy="95" r="5" fill="#000"/>
-      <circle cx="165" cy="95" r="5" fill="#000"/>
+    <!-- ojos -->
+    <circle class="eye" cx="135" cy="105" r="5"/>
+    <circle class="eye" cx="165" cy="105" r="5"/>
 
-      <!-- Nariz -->
-      <ellipse cx="150" cy="120" rx="6" ry="4" fill="#000"/>
+    <!-- nariz -->
+    <ellipse cx="150" cy="130" rx="6" ry="4"/>
 
-      <!-- Orejas -->
-      <ellipse cx="110" cy="95" rx="15" ry="30" fill="#1b1b1b"/>
-      <ellipse cx="190" cy="95" rx="15" ry="30" fill="#1b1b1b"/>
+    <!-- orejas -->
+    <ellipse cx="110" cy="110" rx="14" ry="28" fill="#111"/>
+    <ellipse cx="190" cy="110" rx="14" ry="28" fill="#111"/>
+  </g>
 
-      <!-- Patas -->
-      <rect x="110" y="220" width="20" height="40" rx="10" fill="#1b1b1b"/>
-      <rect x="170" y="220" width="20" height="40" rx="10" fill="#1b1b1b"/>
+  <!-- patas -->
+  <rect x="110" y="220" width="18" height="40" rx="8"/>
+  <rect x="172" y="220" width="18" height="40" rx="8"/>
+</svg>
 
-      <!-- Cola -->
-      <rect class="tail" x="225" y="160" width="40" height="12" rx="6" fill="#1b1b1b"/>
-
-      <!-- Detalles marrones -->
-      <ellipse cx="120" cy="125" rx="10" ry="12" fill="#8b5a2b"/>
-      <ellipse cx="180" cy="125" rx="10" ry="12" fill="#8b5a2b"/>
-
-    </g>
-  </svg>
-
-  <p>
-    Gracias por ser  
-    mi lugar seguro 💕
-  </p>
+<p style="color:white;">Tócalo para cambiar postura 🐾</p>
 </div>
+
+<script>
+let mode = 0;
+const dog = document.getElementById("dog");
+
+document.body.addEventListener("click", ()=>{
+  mode = (mode + 1) % 3;
+  dog.className = "";
+
+  if(mode === 0){
+    dog.classList.add("walk");
+  } else if(mode === 1){
+    dog.style.transform="scaleY(0.85)";
+  } else {
+    dog.style.transform="scaleY(0.6)";
+  }
+});
+</script>
 
 </body>
 </html>
