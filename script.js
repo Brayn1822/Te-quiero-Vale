@@ -109,49 +109,44 @@ setInterval(() => {
    CORAZÓN ❤️
 ===================== */
 
-function corazonGigante() {
-  const c = document.createElement("div");
-  c.innerHTML = "❤️<div>Te quiero</div>";
+let perroX = 0;
+let perroY = 0;
+let perroScale = 1;
 
-  Object.assign(c.style, {
-    position: "absolute",
-    left: "50%",
-    top: "50%",
-    transform: "translate(-50%, -50%) scale(0)",
-    fontSize: "160px",
-    color: "white",
-    textAlign: "center",
-    zIndex: 10,
-    transition: "transform 0.6s ease, opacity 0.6s ease",
-    pointerEvents: "none"
-  });
+/* Movimiento con mouse */
+document.addEventListener("mousemove", e => {
+  const x = (e.clientX / window.innerWidth - 0.5);
+  const y = (e.clientY / window.innerHeight - 0.5);
 
-  c.querySelector("div").style.fontSize = "42px";
-  c.querySelector("div").style.fontFamily = "cursive";
+  perroX = x * 18;
+  perroY = y * 6;
 
-  document.body.appendChild(c);
+  actualizarPerrito();
+});
 
-  requestAnimationFrame(() => {
-    c.style.transform = "translate(-50%, -50%) scale(1)";
-  });
+/* Respiración */
+setInterval(() => {
+  perroScale = perroScale === 1 ? 1.04 : 1;
+  actualizarPerrito();
+}, 2000);
 
-  setTimeout(() => {
-    c.style.opacity = "0";
-    c.style.transform = "translate(-50%, -50%) scale(1.4)";
-  }, 1800);
-
-  setTimeout(() => c.remove(), 2600);
-}
-
+/* Click ❤️ */
 perrito.addEventListener("click", () => {
-  perrito.style.transform += " scale(1.2)";
+  perroScale = 1.2;
+  actualizarPerrito();
   corazonGigante();
 
   setTimeout(() => {
-    perrito.style.transform =
-      perrito.style.transform.replace(" scale(1.2)", "");
+    perroScale = 1;
+    actualizarPerrito();
   }, 600);
 });
+
+function actualizarPerrito() {
+  perrito.style.transform =
+    `translateX(-50%) translate(${perroX}px, ${perroY}px) scale(${perroScale})`;
+}
+
 
 /* =====================
    ESTRELLA FUGAZ
