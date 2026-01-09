@@ -6,17 +6,20 @@
     <title>Corazones de Amor</title>
     <style>
         body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            overflow: hidden;
-            background-color: #000;
-            font-family: 'Arial', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23ff0000" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'), auto;
-        }
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden;
+    background:
+      radial-gradient(circle at top, rgba(255, 64, 129, 0.15), transparent 40%),
+      radial-gradient(circle at bottom, rgba(193, 143, 255, 0.15), transparent 40%),
+      radial-gradient(ellipse at bottom, #0b1026 0%, #000 70%);
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 
         .title {
             position: absolute;
@@ -145,16 +148,50 @@
         }
 
         .star {
-            position: absolute;
-            background-color: white;
-            border-radius: 50%;
-            animation: twinkle 2s infinite alternate;
-        }
+    position: absolute;
+    background-color: white;
+    border-radius: 50%;
+    animation: twinkle 2s infinite alternate;
+    opacity: 0.8;
+}
+
+.star.small { width: 1px; height: 1px; opacity: 0.4; }
+.star.medium { width: 2px; height: 2px; opacity: 0.7; }
+.star.big {
+    width: 3px;
+    height: 3px;
+    box-shadow: 0 0 6px white;
+}
+
 
         @keyframes twinkle {
             from { opacity: 0.3; }
             to { opacity: 1; }
         }
+
+
+        .shooting-star {
+    position: absolute;
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, white, transparent);
+    opacity: 0.8;
+    transform: rotate(-45deg);
+    animation: shoot 1.2s linear forwards;
+    z-index: 2;
+}
+
+@keyframes shoot {
+    from {
+        transform: translate(0, 0) rotate(-45deg);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-600px, 600px) rotate(-45deg);
+        opacity: 0;
+    }
+}
+
     </style>
 </head>
 <body>
@@ -184,25 +221,25 @@
 
         // Crear estrellas de fondo
         function createStars() {
-            const starsContainer = document.getElementById('stars');
-            const starCount = 100;
-            
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                
-                const size = Math.random() * 3;
-                star.style.width = `${size}px`;
-                star.style.height = `${size}px`;
-                
-                star.style.left = `${Math.random() * 100}%`;
-                star.style.top = `${Math.random() * 100}%`;
-                
-                star.style.animationDelay = `${Math.random() * 2}s`;
-                
-                starsContainer.appendChild(star);
-            }
-        }
+    const starsContainer = document.getElementById('stars');
+    const starCount = 180;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElement('div');
+
+        const type = Math.random();
+        if (type < 0.6) star.className = 'star small';
+        else if (type < 0.9) star.className = 'star medium';
+        else star.className = 'star big';
+
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 100 + '%';
+        star.style.animationDelay = Math.random() * 3 + 's';
+
+        starsContainer.appendChild(star);
+    }
+}
+
 
         function createHeart() {
             const heart = document.createElement('div');
@@ -346,6 +383,30 @@
             
             requestAnimationFrame(animate);
         }
+
+        function createShootingStar() {
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+
+    star.style.top = Math.random() * 40 + '%';
+    star.style.left = Math.random() * 100 + '%';
+
+    document.body.appendChild(star);
+
+    setTimeout(() => star.remove(), 1200);
+}
+
+// Aparición aleatoria
+setInterval(() => {
+    if (Math.random() > 0.6) createShootingStar();
+}, 2500);
+
+        document.addEventListener('mousemove', e => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 10;
+    const y = (e.clientY / window.innerHeight - 0.5) * 10;
+    document.body.style.backgroundPosition = `${50 + x}% ${50 + y}%`;
+});
+
 
         // Inicializar
         createStars();
