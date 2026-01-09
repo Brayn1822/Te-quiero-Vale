@@ -1,6 +1,6 @@
-/* =========================
+/* =====================
    REFERENCIAS
-========================= */
+===================== */
 
 const cielo = document.getElementById("cielo");
 const pasto = document.getElementById("pasto");
@@ -9,181 +9,169 @@ const svgEstrellas = document.getElementById("estrellas");
 
 svgEstrellas.setAttribute("viewBox", "0 0 1000 600");
 
-/* =========================
+/* =====================
    ESTRELLAS
-========================= */
+===================== */
 
-const NUM_ESTRELLAS = 140;
 const estrellas = [];
+const TOTAL = 150;
 
-for (let i = 0; i < NUM_ESTRELLAS; i++) {
-  const star = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+for (let i = 0; i < TOTAL; i++) {
+  const s = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 
   const x = Math.random() * 1000;
   const y = Math.random() * 280;
   const r = Math.random() * 1.4 + 0.3;
 
-  star.setAttribute("cx", x);
-  star.setAttribute("cy", y);
-  star.setAttribute("r", r);
-  star.setAttribute("fill", "white");
-  star.style.opacity = Math.random();
+  s.setAttribute("cx", x);
+  s.setAttribute("cy", y);
+  s.setAttribute("r", r);
+  s.setAttribute("fill", "white");
+  s.style.opacity = Math.random();
 
-  svgEstrellas.appendChild(star);
+  svgEstrellas.appendChild(s);
 
-  estrellas.push({
-    el: star,
-    baseX: x,
-    baseY: y,
-    speed: Math.random() * 0.015 + 0.008
-  });
+  estrellas.push({ el: s, x, y, speed: Math.random() * 0.015 + 0.01 });
 }
 
 function animarEstrellas() {
-  estrellas.forEach(star => {
-    let o = parseFloat(star.el.style.opacity);
-    o += (Math.random() - 0.5) * star.speed;
-    star.el.style.opacity = Math.max(0.3, Math.min(1, o));
+  estrellas.forEach(e => {
+    let o = parseFloat(e.el.style.opacity);
+    o += (Math.random() - 0.5) * e.speed;
+    e.el.style.opacity = Math.max(0.3, Math.min(1, o));
   });
   requestAnimationFrame(animarEstrellas);
 }
 animarEstrellas();
 
-/* =========================
-   PARALLAX GENERAL
-========================= */
+/* =====================
+   PARALLAX
+===================== */
 
 document.addEventListener("mousemove", e => {
-  const x = (e.clientX / window.innerWidth - 0.5);
-  const y = (e.clientY / window.innerHeight - 0.5);
+  const x = e.clientX / window.innerWidth - 0.5;
+  const y = e.clientY / window.innerHeight - 0.5;
 
-  cielo.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+  cielo.style.transform = `translate(${x * 12}px, ${y * 12}px)`;
 
   estrellas.forEach(s => {
-    s.el.setAttribute("cx", s.baseX + x * 25);
-    s.el.setAttribute("cy", s.baseY + y * 12);
+    s.el.setAttribute("cx", s.x + x * 28);
+    s.el.setAttribute("cy", s.y + y * 14);
   });
 
-  pasto.style.transform = `translate(${x * 4}px, 0)`;
+  pasto.style.transform = `translate(${x * 6}px, 0)`;
 
   perrito.style.transform =
-    `translateX(-50%) translate(${x * 14}px, ${y * 4}px)`;
+    `translateX(-50%) translate(${x * 18}px, ${y * 6}px)`;
 });
 
-/* =========================
-   TULIPANES EXTRA (CLONADO)
-========================= */
+/* =====================
+   TULIPANES EXTRA
+===================== */
 
-function duplicarTulipanes() {
-  const svgDoc = pasto.contentDocument;
-  if (!svgDoc) return;
+pasto.addEventListener("load", () => {
+  const doc = pasto.contentDocument;
+  if (!doc) return;
 
-  const tulipan = svgDoc.querySelector("svg > g, svg > path");
-  if (!tulipan) return;
+  const base = doc.querySelector("svg > g, svg > path");
+  if (!base) return;
 
-  for (let i = 0; i < 6; i++) {
-    const clone = tulipan.cloneNode(true);
-    clone.setAttribute(
+  for (let i = 0; i < 8; i++) {
+    const c = base.cloneNode(true);
+    c.setAttribute(
       "transform",
-      `translate(${Math.random() * 800 + 50}, ${Math.random() * 40}) scale(${0.8 + Math.random() * 0.4})`
+      `translate(${Math.random() * 900}, ${Math.random() * 40})
+       scale(${0.7 + Math.random() * 0.4})`
     );
-    svgDoc.querySelector("svg").appendChild(clone);
+    doc.querySelector("svg").appendChild(c);
   }
-}
+});
 
-pasto.addEventListener("load", duplicarTulipanes);
+/* =====================
+   PERRITO VIVO
+===================== */
 
-/* =========================
-   ANIMACIÓN SUAVE PERRITO
-========================= */
-
-let respiracion = 1;
 setInterval(() => {
-  respiracion = respiracion === 1 ? 1.03 : 1;
-  perrito.style.transform += ` scale(${respiracion})`;
-}, 2000);
+  perrito.style.transform += " scale(1.03)";
+  setTimeout(() => {
+    perrito.style.transform =
+      perrito.style.transform.replace(" scale(1.03)", "");
+  }, 800);
+}, 2200);
 
-/* =========================
-   CORAZÓN GIGANTE ❤️
-========================= */
+/* =====================
+   CORAZÓN ❤️
+===================== */
 
-function crearCorazon() {
-  const heart = document.createElement("div");
-  heart.innerHTML = "❤️<span>Te quiero</span>";
-  heart.style.position = "absolute";
-  heart.style.left = "50%";
-  heart.style.top = "50%";
-  heart.style.transform = "translate(-50%, -50%) scale(0)";
-  heart.style.fontSize = "160px";
-  heart.style.textAlign = "center";
-  heart.style.zIndex = "10";
-  heart.style.transition = "transform 0.6s ease, opacity 0.6s ease";
-  heart.style.pointerEvents = "none";
+function corazonGigante() {
+  const c = document.createElement("div");
+  c.innerHTML = "❤️<div>Te quiero</div>";
 
-  heart.querySelector("span").style.display = "block";
-  heart.querySelector("span").style.fontSize = "42px";
-  heart.querySelector("span").style.color = "white";
-  heart.querySelector("span").style.fontFamily = "cursive";
+  Object.assign(c.style, {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%) scale(0)",
+    fontSize: "160px",
+    color: "white",
+    textAlign: "center",
+    zIndex: 10,
+    transition: "transform 0.6s ease, opacity 0.6s ease",
+    pointerEvents: "none"
+  });
 
-  document.body.appendChild(heart);
+  c.querySelector("div").style.fontSize = "42px";
+  c.querySelector("div").style.fontFamily = "cursive";
+
+  document.body.appendChild(c);
 
   requestAnimationFrame(() => {
-    heart.style.transform = "translate(-50%, -50%) scale(1)";
+    c.style.transform = "translate(-50%, -50%) scale(1)";
   });
 
   setTimeout(() => {
-    heart.style.opacity = "0";
-    heart.style.transform = "translate(-50%, -50%) scale(1.5)";
+    c.style.opacity = "0";
+    c.style.transform = "translate(-50%, -50%) scale(1.4)";
   }, 1800);
 
-  setTimeout(() => heart.remove(), 2600);
+  setTimeout(() => c.remove(), 2600);
 }
 
-/* =========================
-   CLICK PERRITO ❤️
-========================= */
-
-perrito.style.cursor = "pointer";
-
 perrito.addEventListener("click", () => {
-  perrito.style.transition = "transform 0.4s ease";
   perrito.style.transform += " scale(1.2)";
-  crearCorazon();
+  corazonGigante();
 
   setTimeout(() => {
-    perrito.style.transform = perrito.style.transform.replace(" scale(1.2)", "");
+    perrito.style.transform =
+      perrito.style.transform.replace(" scale(1.2)", "");
   }, 600);
 });
 
-/* =========================
+/* =====================
    ESTRELLA FUGAZ
-========================= */
+===================== */
 
-function estrellaFugaz() {
-  const star = document.createElementNS("http://www.w3.org/2000/svg", "line");
-
-  const x = Math.random() * 750;
+setInterval(() => {
+  const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  const x = Math.random() * 800;
   const y = Math.random() * 200;
 
-  star.setAttribute("x1", x);
-  star.setAttribute("y1", y);
-  star.setAttribute("x2", x + 120);
-  star.setAttribute("y2", y + 35);
-  star.setAttribute("stroke", "white");
-  star.setAttribute("stroke-width", "1.4");
-  star.style.opacity = 1;
+  l.setAttribute("x1", x);
+  l.setAttribute("y1", y);
+  l.setAttribute("x2", x + 120);
+  l.setAttribute("y2", y + 30);
+  l.setAttribute("stroke", "white");
+  l.setAttribute("stroke-width", "1.4");
 
-  svgEstrellas.appendChild(star);
+  svgEstrellas.appendChild(l);
 
   let p = 0;
-  const anim = setInterval(() => {
+  const a = setInterval(() => {
     p += 0.05;
-    star.style.opacity = 1 - p;
+    l.style.opacity = 1 - p;
     if (p >= 1) {
-      clearInterval(anim);
-      star.remove();
+      clearInterval(a);
+      l.remove();
     }
   }, 16);
-}
-
-setInterval(estrellaFugaz, Math.random() * 4000 + 8000);
+}, 9000);
