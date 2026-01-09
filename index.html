@@ -226,36 +226,23 @@
     <script>
         const isMobile = window.innerWidth < 768;
         const romanticMessages = [
-            "Eres el sueño que no quiero dejar de soñar 💫"
+    "Eres el sueño que no quiero dejar de soñar 💫",
+    "Eres la luz que ilumina mi camino ☀️",
+    "Tú eres la razón de que mi corazón lata 💓",
+    "Ninguna constelación podría igualarte 🌌",
+    "Así como el universo no tiene fin, así es como te quiero 🚀",
+    "Eres la razón por la que creo y tengo fe en lo inesperado 💘",
+    "Mi corazón late como tambores cada vez que te tengo a mi lado 🏃‍♂️💨",
+    "Quiero poder ser tan dulce que siempre me tengas a tu lado 🍫",
+    "Quiero despertar a tu lado todos los días de mi vida 🌅",
+    "Eres la luna que brilla como nunca en mis noches más oscuras 🌟",
+    "Tu paciencia es mi mayor tesoro en este mundo 💎",
+    "Juntos no hay nada que no podamos superar 🦸‍♂️🦸‍♀️",
+    "Eres la música pegajosa que siempre está en mi cabeza 🎶",
+    "Mi vida antes de ti no sabía lo que era querer estar con una persona 🎨",
+    "Eres mi final feliz en esta historia cósmica de amistad, amor y cariño 📖"
+];
 
-"Eres la luz que ilumina mi camino ☀️"
-
-"Tú eres la razón de que mi corazón lata 💓"
-
-"Ninguna constelación podría igualarte 🌌"
-
-"Así como el universo no tiene fin, así es como te quiero 🚀"
-
-"Eres la razón por la que creo y tengo fe en lo inesperado 💘"
-
-"Mi corazón late como tambores cada vez que te tengo a mi lado 🏃‍♂️💨"
-
-"Quiero poder ser tan dulce que siempre me tengas a tu lado 🍫"
-
-"Quiero despertar a tu lado todos los días de mi vida 🌅"
-
-"Eres la luna que brilla como nunca en mis noches más oscuras 🌟"
-
-"Tu paciencia es mi mayor tesoro en este mundo 💎"
-
-"Juntos no hay nada que no podamos superar 🦸‍♂️🦸‍♀️"
-
-"Eres la música pegajosa que siempre está en mi cabeza 🎶"
-
-"Mi vida antes de ti no sabía lo que era querer estar con una persona 🎨"
-
-"Eres mi final feliz en esta historia cósmica de amistad, amor y cariño 📖"
-        ];
 
         // Crear estrellas de fondo
         function createStars() {
@@ -351,36 +338,6 @@ function drawConstellation() {
 drawConstellation();
 
 
-function drawConstellation() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    nodes.forEach((a, i) => {
-        nodes.forEach((b, j) => {
-            if (i !== j) {
-                const dist = Math.hypot(a.x - b.x, a.y - b.y);
-                if (dist < 140) {
-                    ctx.strokeStyle = `rgba(255,64,129,${1 - dist / 140})`;
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(a.x, a.y);
-                    ctx.lineTo(b.x, b.y);
-                    ctx.stroke();
-                }
-            }
-        });
-    });
-
-    nodes.forEach(n => {
-        n.x += n.vx;
-        n.y += n.vy;
-        if (n.x < 0 || n.x > canvas.width) n.vx *= -1;
-        if (n.y < 0 || n.y > canvas.height) n.vy *= -1;
-    });
-
-    requestAnimationFrame(drawConstellation);
-}
-
-drawConstellation();
 
 
         function createHeart() {
