@@ -341,8 +341,9 @@ drawConstellation();
                 explodeHeart(heart);
             });
         }
-
+            let heartsOpened = 0;
         function explodeHeart(heart) {
+    heartsOpened++;
             // Crear mensaje romántico
             const message = document.createElement('div');
             message.className = 'message';
@@ -398,7 +399,22 @@ drawConstellation();
                     }, 500);
                 }, 100);
             }, 10);
+             if (heartsOpened === 7) {
+        showFinalMessage();
+    }
         }
+function showFinalMessage() {
+    const final = document.createElement('div');
+    final.className = 'message show';
+    final.innerHTML = `
+        💖 Este regalo es solo para ti 💖<br>
+        Gracias por existir en mi universo 🌌
+    `;
+    final.style.top = '40%';
+    final.style.left = '50%';
+    final.style.transform = 'translate(-50%, -50%) scale(1.2)';
+    document.body.appendChild(final);
+}
 
         function createMiniHeart(x, y) {
             const miniHeart = document.createElement('div');
