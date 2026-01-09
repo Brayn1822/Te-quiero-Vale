@@ -1,522 +1,231 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Corazón interactivo + lluvia de frases</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Corazón 3D + Lluvia de frases</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <style>
-  :root{
-    --bg:#06060b;
-    --text:#ffffff;
-  }
-  html,body{
-    height:100%;
-    margin:0;
-    background: radial-gradient(ellipse at 20% 10%, rgba(80,50,160,0.08), transparent 10%),
-                linear-gradient(180deg,#071026 0%, var(--bg) 70%);
-    font-family: Inter, system-ui, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-    overflow:hidden;
-    color:var(--text);
-    -webkit-font-smoothing:antialiased;
-    -moz-osx-font-smoothing:grayscale;
-    touch-action:manipulation;
-  }
+html,body{
+  margin:0;
+  height:100%;
+  overflow:hidden;
+  background:#05050a;
+  font-family: Arial, Helvetica, sans-serif;
+  color:white;
+}
 
-  /* Canvas full */
-  canvas#heartCanvas{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    z-index:0;
-    pointer-events:none;
-  }
+/* TÍTULO */
+.title{
+  position:fixed;
+  top:20px;
+  width:100%;
+  text-align:center;
+  font-size:3rem;
+  letter-spacing:4px;
+  color:#ff2a6d;
+  text-shadow:0 0 20px #ff2a6d;
+  z-index:20;
+  animation:pulse 3s infinite;
+}
+@keyframes pulse{
+  0%,100%{transform:scale(1)}
+  50%{transform:scale(1.05)}
+}
 
-  /* Contenedor de overlays */
-  .ui{
-    position:fixed;
-    inset:0;
-    z-index:20;
-    pointer-events:none;
-  }
+/* THREE */
+#scene{
+  position:fixed;
+  inset:0;
+  z-index:1;
+}
 
-  /* FRAMES: lluvia de frases: cada frase es un element gestionado por JS */
-  .phrase{
-    position:absolute;
-    left:50%;
-    transform:translate(-50%,0) rotate(-2deg);
-    pointer-events:auto;
-    white-space:nowrap;
-    font-weight:700;
-    font-size:18px;
-    padding:6px 12px;
-    border-radius:10px;
-    background:linear-gradient(90deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-    color:var(--text);
-    text-shadow:0 4px 18px rgba(0,0,0,0.6);
-    will-change:transform, opacity;
-    user-select:none;
-    touch-action:none;
-  }
-
-  /* floating hearts (bottom -> top) */
-  .float-heart{
-    position:fixed;
-    bottom:-40px;
-    pointer-events:none;
-    font-size:20px;
-    opacity:0.95;
-    will-change:transform, opacity;
-    filter:drop-shadow(0 8px 18px rgba(0,0,0,0.45));
-    z-index:10;
-  }
-
-  @keyframes floatUp {
-    0%{ transform: translateY(0) scale(0.9); opacity:0; }
-    10%{ opacity:1; }
-    100%{ transform: translateY(-120vh) rotate(-20deg) scale(1.2); opacity:0; }
-  }
-
-  /* small hint top-left */
-  .hint {
-    position:fixed;
-    left:16px;
-    top:16px;
-    z-index:30;
-    pointer-events:none;
-    font-size:13px;
-    opacity:0.7;
-    background:rgba(0,0,0,0.18);
-    padding:8px 10px;
-    border-radius:8px;
-    color:#fff;
-  }
-
-  /* responsive tweaks */
-  @media (max-width:520px){
-    .phrase{ font-size:16px; padding:5px 10px; }
-  }
+/* FRASES */
+.phrase{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  padding:6px 12px;
+  border-radius:10px;
+  font-weight:bold;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(6px);
+  color:white;
+  text-shadow:0 0 10px rgba(0,0,0,0.6);
+  pointer-events:auto;
+  z-index:10;
+  will-change:transform,opacity;
+}
 </style>
 </head>
+
 <body>
 
-<canvas id="heartCanvas"></canvas>
-<div class="ui" id="ui"></div>
-<div class="hint">Toca/clic en pantalla para mover las partículas y las frases ❤️</div>
+<div class="title">I LOVE YOU</div>
+<div id="scene"></div>
 
 <script>
-/* =========================
-   CONFIG: frases, emojis
-   ========================= */
+/* ==========================
+   FRASES
+========================== */
 const PHRASES = [
-  "Eres mi lugar favorito.",
-  "Contigo cada día es inicio.",
-  "Mi latido te pertenece.",
-  "Amarte es mi mejor aventura.",
-  "Eres razón y sueño.",
-  "Tus ojos guardan mi calma.",
-  "Juntos hacemos magia cotidiana.",
-  "Eres mi sonrisa programada.",
-  "Me robaste el aliento y el café.",
-  "Donde tú estés, quiero estar.",
-  "Mi corazón te susurra siempre.",
-  "Amor que se queda y suma."
+  "Eres mi lugar favorito 💖",
+  "Contigo todo tiene sentido",
+  "Mi corazón late por ti",
+  "Siempre tú",
+  "Amarte es fácil",
+  "Eres mi paz",
+  "Te elegiría otra vez",
+  "Mi amor eterno ❤️"
 ];
 
-const EMOJIS = ["💖","💘","💝","💗","💕","💞","💓","✨","🌸","💫","🌟","❤️","💜","🩷"];
+let phrases = [];
+const MAX_PHRASES = 14;
 
-/* =========================
-   CANVAS: corazón de partículas
-   ========================= */
-const canvas = document.getElementById('heartCanvas');
-const ctx = canvas.getContext('2d', { alpha: true });
-let DPR = Math.max(window.devicePixelRatio || 1, 1);
-function resizeCanvas(){
-  canvas.width = innerWidth * DPR;
-  canvas.height = innerHeight * DPR;
-  canvas.style.width = innerWidth + "px";
-  canvas.style.height = innerHeight + "px";
-  ctx.setTransform(DPR,0,0,DPR,0,0);
-}
-resizeCanvas();
-addEventListener('resize', ()=>{
-  DPR = Math.max(window.devicePixelRatio || 1, 1);
-  resizeCanvas();
-});
+/* ==========================
+   THREE.JS
+========================== */
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
+camera.position.z = 45;
 
-/* heart param math */
-function heartXY(t, scale=15){
+let renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(devicePixelRatio);
+document.getElementById('scene').appendChild(renderer.domElement);
+
+/* LUCES */
+scene.add(new THREE.AmbientLight(0xffffff, 0.3));
+let light = new THREE.PointLight(0xff2a6d, 2, 120);
+light.position.set(20,20,20);
+scene.add(light);
+
+/* CORAZÓN 3D */
+const COUNT = 5000;
+const positions = new Float32Array(COUNT*3);
+const start = new Float32Array(COUNT*3);
+
+function heart(t){
+  t *= Math.PI*2;
   return {
-    x: 16*Math.pow(Math.sin(t),3)*scale,
-    y: -(13*Math.cos(t) - 5*Math.cos(2*t) - 2*Math.cos(3*t) - Math.cos(4*t)) * scale
-  };
-}
-
-/* particles */
-let particles = [];
-let CENTER = { x: innerWidth/2, y: innerHeight/2 + 8 };
-let baseScale = Math.min(14, Math.max(8, Math.min(innerWidth, innerHeight)/58));
-let TOTAL = Math.floor(900 * Math.min(1.0, Math.max(0.4, innerWidth/1200)));
-function initParticles(){
-  particles = [];
-  CENTER.x = innerWidth/2;
-  CENTER.y = innerHeight/2 + 8;
-  baseScale = Math.min(14, Math.max(8, Math.min(innerWidth, innerHeight)/58));
-  TOTAL = Math.floor(900 * Math.min(1.0, Math.max(0.4, innerWidth/1200)));
-  for(let i=0;i<TOTAL;i++){
-    let t = (i/TOTAL)*Math.PI*2;
-    let pos = heartXY(t, baseScale);
-    let x = CENTER.x + pos.x + (Math.random()-.5)*12;
-    let y = CENTER.y + pos.y + (Math.random()-.5)*12;
-    particles.push({
-      ox:x, oy:y,
-      x: x + (Math.random()-0.5)*40,
-      y: y + (Math.random()-0.5)*40,
-      vx: (Math.random()-0.5)*1.2,
-      vy: (Math.random()-0.5)*1.2,
-      size: Math.random()*1.8 + 0.8,
-      hue: Math.random()*360,
-      attached: true,
-      noise: Math.random()*1000
-    });
+    x:16*Math.pow(Math.sin(t),3),
+    y:13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t),
+    z:(Math.random()-0.5)*4
   }
 }
-initParticles();
-addEventListener('resize', ()=>initParticles());
 
-let last = performance.now();
-let elapsed = 0;
-let pointer = { x:-999, y:-999, down:false };
+for(let i=0;i<COUNT;i++){
+  let p = heart(i/COUNT);
+  positions[i*3]   = p.x;
+  positions[i*3+1] = p.y;
+  positions[i*3+2] = p.z;
 
-/* animation loop */
-function draw(now){
-  const dt = (now - last)/1000;
-  last = now;
-  elapsed += dt;
-  ctx.clearRect(0,0,innerWidth,innerHeight);
-
-  // subtle background glow
-  let pulse = 1 + 0.06*Math.sin(elapsed*4);
-  ctx.beginPath();
-  ctx.fillStyle = "rgba(255,255,255,0.03)";
-  ctx.ellipse(CENTER.x, CENTER.y, baseScale*30*pulse, baseScale*20*pulse, 0,0,Math.PI*2);
-  ctx.fill();
-
-  // particles update & render
-  for(let p of particles){
-    let ax = (p.ox - p.x) * 0.06 * (p.attached ? 1 : 0.12);
-    let ay = (p.oy - p.y) * 0.06 * (p.attached ? 1 : 0.12);
-
-    p.vx += ax + Math.cos((elapsed + p.noise) * 1.2) * 0.06;
-    p.vy += ay + Math.sin((elapsed + p.noise) * 1.1) * 0.06;
-
-    // pointer repulsion
-    let dx = p.x - pointer.x, dy = p.y - pointer.y;
-    let d = Math.hypot(dx, dy);
-    if(d < 140){
-      let f = (140 - d)/140;
-      p.vx += (dx/d) * f * 4.2;
-      p.vy += (dy/d) * f * 4.2;
-      p.attached = false;
-    }
-
-    p.vx *= 0.92; p.vy *= 0.92;
-    p.x += p.vx; p.y += p.vy;
-
-    let s = p.size * (1 + 0.25 * Math.sin(elapsed*3 + p.noise));
-    // radial glow
-    let g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, s*6);
-    g.addColorStop(0, `hsla(${p.hue},100%,70%,1)`);
-    g.addColorStop(1, `hsla(${p.hue},100%,50%,0)`);
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, s, 0, Math.PI*2);
-    ctx.fill();
-  }
-
-  // outline stroke
-  ctx.save();
-  ctx.globalCompositeOperation = "lighter";
-  ctx.strokeStyle = "rgba(255,255,255,0.12)";
-  ctx.lineWidth = 2;
-  ctx.beginPath();
-  let steps = 180;
-  for(let i=0;i<=steps;i++){
-    let tt = (i/steps)*Math.PI*2;
-    let pos = heartXY(tt, baseScale * pulse);
-    let X = CENTER.x + pos.x, Y = CENTER.y + pos.y;
-    if(i==0) ctx.moveTo(X,Y); else ctx.lineTo(X,Y);
-  }
-  ctx.stroke();
-  ctx.restore();
-
-  requestAnimationFrame(draw);
+  start[i*3]   = (Math.random()-0.5)*120;
+  start[i*3+1] = (Math.random()-0.5)*120;
+  start[i*3+2] = (Math.random()-0.5)*120;
 }
-requestAnimationFrame(draw);
 
-/* pointer events: desktop + touch */
-function updatePointerFromEvent(e){
-  if(e.touches && e.touches[0]) {
-    pointer.x = e.touches[0].clientX;
-    pointer.y = e.touches[0].clientY;
-  } else {
-    pointer.x = e.clientX;
-    pointer.y = e.clientY;
-  }
-}
-addEventListener('mousemove', (e)=>{ updatePointerFromEvent(e); });
-addEventListener('touchmove', (e)=>{ updatePointerFromEvent(e); }, { passive:true });
+let geometry = new THREE.BufferGeometry();
+geometry.setAttribute('position', new THREE.BufferAttribute(start,3));
+geometry.target = positions;
 
-addEventListener('pointerdown', (e)=>{
-  updatePointerFromEvent(e);
-  pointer.down = true;
-  doImpact(pointer.x, pointer.y);
+let material = new THREE.PointsMaterial({
+  size:0.35,
+  color:0xff2a6d,
+  transparent:true,
+  opacity:0.95,
+  blending:THREE.AdditiveBlending
 });
-addEventListener('pointerup', ()=>{ pointer.down = false; });
 
-/* clicking/touch creates a radial push & shows a phrase pop */
-function doImpact(x,y){
-  // particles
-  for(let p of particles){
-    let dx = p.x - x, dy = p.y - y;
-    let d = Math.hypot(dx,dy);
-    if(d < 220){
-      let f = (220 - d)/220;
-      p.vx += (dx/d) * (6 + Math.random()*3);
-      p.vy += (dy/d) * (6 + Math.random()*3);
-      p.attached = false;
-      setTimeout(()=> p.attached = true, 800 + Math.random()*1200);
-    }
-  }
-  // also pop a phrase near click
-  spawnFallingPhraseAt(x, y - 30, true);
-}
+let heartPoints = new THREE.Points(geometry, material);
+scene.add(heartPoints);
 
-/* =========================
-   LLUVIA DE FRASES (falling text)
-   Implementada con objetos JS que actualizan posicion/vel
-   ========================= */
-const ui = document.getElementById('ui');
-let phrasesOnScreen = [];
-let maxPhrases = 18;
+let progress = 0;
 
-function spawnFallingPhrase(){
-  if(phrasesOnScreen.length >= maxPhrases) return;
-  const el = document.createElement('div');
+/* ==========================
+   FRASES
+========================== */
+function spawnPhrase(x = Math.random()*innerWidth){
+  if(phrases.length >= MAX_PHRASES) return;
+  let el = document.createElement('div');
   el.className = 'phrase';
-  el.innerText = PHRASES[Math.floor(Math.random()*PHRASES.length)];
-  // random X margin
-  const margin = 40;
-  const x = Math.random() * (innerWidth - margin*2) + margin;
-  const size = 14 + Math.random()*8;
+  el.textContent = PHRASES[Math.floor(Math.random()*PHRASES.length)];
+  el.style.top = '-40px';
   el.style.left = x + 'px';
-  el.style.fontSize = size + 'px';
-  // random style background
-  const hue = Math.floor(Math.random()*360);
-  el.style.background = `linear-gradient(90deg, hsla(${hue},80%,60%,0.14), hsla(${(hue+30)%360},80%,60%,0.06))`;
-  el.style.border = `1px solid rgba(255,255,255,0.03)`;
-  el.style.backdropFilter = 'blur(4px) saturate(1.05)';
-  // place above viewport
-  el.style.top = (-20 - Math.random()*80) + 'px';
-  el.style.opacity = 0;
-  ui.appendChild(el);
+  document.body.appendChild(el);
 
-  // phrase physics object
-  const obj = {
+  phrases.push({
     el,
-    x: x,
-    y: parseFloat(el.style.top),
-    vx: (Math.random()-0.5) * 12 * 0.02, // small horizontal drift
-    vy: 20 + Math.random()*40,           // falling speed px/sec
-    sway: (Math.random()*2-1) * 0.6,
-    life: 0,
-    seed: Math.random()*1000,
-    touched: false
-  };
-
-  // events: touch / click on phrase => push & animate
-  function onPointer(e){
-    e.stopPropagation();
-    e.preventDefault();
-    // compute local pointer
-    let px = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    let py = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    // push away
-    const dx = obj.x - px, dy = obj.y - py;
-    const d = Math.hypot(dx, dy) || 1;
-    const force = 12 + Math.random()*6;
-    obj.vx += (dx/d) * force;
-    obj.vy += (dy/d) * force * 0.6 - 30;
-    obj.touched = true;
-    el.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1), opacity 300ms';
-    el.style.transform = 'translateY(-8px) scale(1.08)';
-    setTimeout(()=> el.style.transform = '', 350);
-  }
-  el.addEventListener('pointerdown', onPointer);
-  el.addEventListener('touchstart', onPointer, { passive:false });
-
-  phrasesOnScreen.push(obj);
-
-  // fade-in
-  requestAnimationFrame(()=> el.style.opacity = 1 );
+    x,
+    y:-40,
+    vy:30 + Math.random()*40
+  });
 }
 
-/* spawn around click */
-function spawnFallingPhraseAt(x,y,instant=false){
-  if(phrasesOnScreen.length >= maxPhrases) return;
-  const el = document.createElement('div');
-  el.className = 'phrase';
-  el.innerText = PHRASES[Math.floor(Math.random()*PHRASES.length)];
-  const size = 14 + Math.random()*8;
-  el.style.fontSize = size + 'px';
-  const hue = Math.floor(Math.random()*360);
-  el.style.background = `linear-gradient(90deg, hsla(${hue},80%,60%,0.14), hsla(${(hue+30)%360},80%,60%,0.06))`;
-  el.style.left = Math.min(Math.max(14, x), innerWidth - 50) + 'px';
-  el.style.top = y + 'px';
-  el.style.opacity = 0;
-  ui.appendChild(el);
+setInterval(()=>spawnPhrase(),600);
 
-  const obj = {
-    el,
-    x: parseFloat(el.style.left),
-    y: parseFloat(el.style.top),
-    vx: (Math.random()-0.5) * 18 * 0.02,
-    vy: -60 + Math.random()*10,
-    sway: (Math.random()*2-1) * 0.6,
-    life: 0,
-    seed: Math.random()*1000,
-    touched: true
-  };
+/* ==========================
+   INTERACCIÓN
+========================== */
+let pointer = {x:-999,y:-999};
+addEventListener('mousemove',e=>{
+  pointer.x=e.clientX;
+  pointer.y=e.clientY;
+});
+addEventListener('click',e=>{
+  spawnPhrase(e.clientX);
+});
 
-  function onPointer(e){
-    e.stopPropagation();
-    e.preventDefault();
-    let px = (e.touches && e.touches[0]) ? e.touches[0].clientX : e.clientX;
-    let py = (e.touches && e.touches[0]) ? e.touches[0].clientY : e.clientY;
-    const dx = obj.x - px, dy = obj.y - py;
-    const d = Math.hypot(dx, dy) || 1;
-    const force = 14 + Math.random()*6;
-    obj.vx += (dx/d) * force;
-    obj.vy += (dy/d) * force * 0.6 - 20;
-    obj.touched = true;
-    el.style.transition = 'transform 260ms cubic-bezier(.2,.9,.2,1), opacity 300ms';
-    el.style.transform = 'translateY(-8px) scale(1.08)';
-    setTimeout(()=> el.style.transform = '', 350);
+/* ==========================
+   ANIMACIÓN
+========================== */
+let clock = new THREE.Clock();
+
+function animate(){
+  requestAnimationFrame(animate);
+  let t = clock.getElapsedTime();
+
+  /* FORMAR CORAZÓN */
+  progress = Math.min(1, progress + 0.004);
+  let pos = geometry.attributes.position.array;
+  let target = geometry.target;
+
+  for(let i=0;i<pos.length;i++){
+    pos[i] += (target[i]-pos[i]) * progress * 0.02;
   }
-  el.addEventListener('pointerdown', onPointer);
-  el.addEventListener('touchstart', onPointer, { passive:false });
+  geometry.attributes.position.needsUpdate = true;
 
-  phrasesOnScreen.push(obj);
-  requestAnimationFrame(()=> el.style.opacity = 1 );
-}
+  /* PULSO + ROTACIÓN */
+  let pulse = 1 + Math.sin(t*2)*0.05;
+  heartPoints.scale.set(pulse,pulse,pulse);
+  heartPoints.rotation.y += 0.002;
+  heartPoints.rotation.x = Math.sin(t*0.5)*0.1;
 
-/* update loop for falling phrases */
-let lastPhr = performance.now();
-function updatePhrases(now){
-  const dt = (now - lastPhr)/1000;
-  lastPhr = now;
+  /* FRASES */
+  for(let i=phrases.length-1;i>=0;i--){
+    let p = phrases[i];
+    p.y += p.vy * 0.016;
+    p.el.style.transform = `translate(-50%, ${p.y}px)`;
 
-  for(let i = phrasesOnScreen.length - 1; i >= 0; i--){
-    const p = phrasesOnScreen[i];
-    p.life += dt;
-    // sway horizontal
-    p.x += p.vx * dt * 60 + Math.sin((p.seed + p.life*2.2)) * p.sway;
-    // gravity-like
-    p.vy += 18 * dt; // acceleración
-    p.y += p.vy * dt;
-
-    // slight rotation/tilt for liveliness
-    const tilt = Math.sin((p.seed + p.life*1.9)) * 4;
-    p.el.style.transform = `translate(-50%,0) translate(${p.x - parseFloat(p.el.style.left)}px, ${p.y - parseFloat(p.el.style.top)}px) rotate(${tilt}deg)`;
-
-    // out of bounds => fade and remove
-    if(p.y > innerHeight + 120 || p.x < -200 || p.x > innerWidth + 200){
-      p.el.style.transition = 'opacity 600ms';
-      p.el.style.opacity = 0;
-      setTimeout(()=>{
-        if(p.el && p.el.parentNode) p.el.parentNode.removeChild(p.el);
-      }, 620);
-      phrasesOnScreen.splice(i,1);
+    if(p.y > innerHeight+80){
+      p.el.remove();
+      phrases.splice(i,1);
     }
   }
 
-  // spawn new occasionally based on screen size
-  if(Math.random() < 0.06 * (innerWidth/900) && phrasesOnScreen.length < maxPhrases){
-    spawnFallingPhrase();
-  }
-
-  requestAnimationFrame(updatePhrases);
+  renderer.render(scene,camera);
 }
-requestAnimationFrame(updatePhrases);
+animate();
 
-/* =========================
-   CORAZONES flotantes (bottom -> top)
-   ========================= */
-function spawnFloatingHeart() {
-  const el = document.createElement('div');
-  el.className = 'float-heart';
-  const emoji = EMOJIS[Math.floor(Math.random()*EMOJIS.length)];
-  el.innerText = emoji;
-  const size = 16 + Math.random()*26;
-  el.style.fontSize = size + 'px';
-  const left = Math.random() * (innerWidth - 80) + 20;
-  el.style.left = left + 'px';
-  const duration = 6 + Math.random()*6;
-  const delay = Math.random()*2;
-  el.style.animation = `floatUp ${duration}s linear ${delay}s forwards`;
-  el.style.opacity = 0;
-  el.style.transform = 'translateY(0) scale(0.9)';
-  ui.appendChild(el);
-  // remove after animation
-  setTimeout(()=> {
-    if(el && el.parentNode) el.parentNode.removeChild(el);
-  }, (delay + duration) * 1000 + 200);
-
-  // small pop-in
-  requestAnimationFrame(()=> el.style.opacity = 1 );
-}
-// spawn periodically
-setInterval(spawnFloatingHeart, 700);
-
-/* =========================
-   Interacciones: click en pantalla -> efecto
-   ========================= */
-addEventListener('click', (e) => {
-  doImpact(e.clientX, e.clientY);
+/* RESIZE */
+addEventListener('resize',()=>{
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
 });
-
-/* =========================
-   Small gentle auto-spawn of phrases on load so it no esté vacío
-   ========================= */
-for(let i=0;i<6;i++){
-  setTimeout(()=> spawnFallingPhrase(), 1200 + i*300);
-}
-
-/* =========================
-   Accessibility: pause animations when page hidden
-   ========================= */
-document.addEventListener('visibilitychange', ()=>{
-  if(document.hidden){
-    // stop pointer influence
-    pointer.x = -999; pointer.y = -999;
-  }
-});
-
-/* =========================
-   Optional: allow tap-and-drag to sweep phrases/particles
-   ========================= */
-let activeTouch = null;
-addEventListener('touchstart', (e)=> {
-  activeTouch = e.changedTouches[0].identifier;
-}, { passive:true });
-
-addEventListener('touchend', ()=> { activeTouch = null; }, { passive:true });
-
-/* =========================
-   FIN. Mensaje para consola (no necesario)
-   ========================= */
-console.log('Corazón interactivo listo — toca/clic para jugar ❤️');
-
 </script>
+
 </body>
 </html>
