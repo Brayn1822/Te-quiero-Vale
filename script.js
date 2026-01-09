@@ -47,23 +47,29 @@ animarEstrellas();
 /* =====================
    PARALLAX
 ===================== */
+pasto.addEventListener("load", () => {
+  const doc = pasto.contentDocument;
+  if (!doc) return;
 
-document.addEventListener("mousemove", e => {
-  const x = e.clientX / window.innerWidth - 0.5;
-  const y = e.clientY / window.innerHeight - 0.5;
+  const svg = doc.querySelector("svg");
+  const tulipanBase = svg.querySelector("g, path");
+  if (!tulipanBase) return;
 
-  cielo.style.transform = `translate(${x * 12}px, ${y * 12}px)`;
+  for (let i = 0; i < 10; i++) {
+    const clone = tulipanBase.cloneNode(true);
 
-  estrellas.forEach(s => {
-    s.el.setAttribute("cx", s.x + x * 28);
-    s.el.setAttribute("cy", s.y + y * 14);
-  });
+    const x = Math.random() * 900;
+    const scale = 0.4 + Math.random() * 0.2; // 🔽 más pequeños
 
-  pasto.style.transform = `translate(${x * 6}px, 0)`;
+    clone.setAttribute(
+      "transform",
+      `translate(${x}, 0) scale(${scale})`
+    );
 
-  perrito.style.transform =
-    `translateX(-50%) translate(${x * 18}px, ${y * 6}px)`;
+    svg.appendChild(clone);
+  }
 });
+
 
 /* =====================
    TULIPANES EXTRA
