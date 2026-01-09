@@ -1,28 +1,598 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Escena WOW SVG</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Heart Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000; /* Fondo completamente negro */
+            overflow: hidden;
+            height: 100vh;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+        
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+        
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: twinkle var(--duration) infinite ease-in-out;
+            animation-delay: var(--delay);
+        }
+        
+        .progress-container {
+            position: absolute;
+            bottom: 50px;
+            width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            overflow: hidden;
+            z-index: 25;
+            opacity: 0.7;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, #ff2a6d, #d40078);
+            border-radius: 4px;
+            transition: width 0.3s ease-out;
+        }
+        
+        .i-love-you-meteor {
+            position: absolute;
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff2a6d;
+            text-shadow: 0 0 10px rgba(255, 42, 109, 0.8);
+            z-index: 15;
+            pointer-events: none;
+            opacity: 0;
+            font-family: 'Arial Black', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .impact-effect {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,42,109,0.8) 0%, rgba(255,42,109,0) 70%);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+        }
+        
+        .completion-message {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #ff2a6d;
+            font-size: 1.5rem;
+            z-index: 30;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 1s ease;
+            text-shadow: 0 0 10px rgba(255, 42, 109, 0.8);
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        .title {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #ff2a6d;
+            font-size: 3.5rem; /* Tamaño más grande */
+            z-index: 30;
+            text-shadow: 0 0 15px rgba(255, 42, 109, 0.8);
+            font-family: 'Arial Black', sans-serif;
+            letter-spacing: 3px;
+            animation: pulseText 3s infinite;
+            text-transform: uppercase;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #ffb6c1;
+            font-size: 1.2rem;
+            z-index: 30;
+            opacity: 0.7;
+        }
+
+        /* Animaciones */
+        @keyframes twinkle {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+        
+        @keyframes pulseText {
+            0%, 100% { 
+                transform: scale(1); 
+                text-shadow: 0 0 15px rgba(255, 42, 109, 0.8); 
+            }
+            50% { 
+                transform: scale(1.05); 
+                text-shadow: 0 0 25px rgba(255, 42, 109, 1); 
+            }
+        }
+        
+        @keyframes meteorFall {
+            0% { 
+                transform: translateY(-100px) rotate(0deg) scale(0.5); 
+                opacity: 0.8; 
+            }
+            80% { 
+                opacity: 1; 
+                text-shadow: 0 0 20px rgba(255, 42, 109, 1);
+            }
+            100% { 
+                transform: translateY(100vh) rotate(10deg) scale(1.2); 
+                opacity: 0; 
+            }
+        }
+        
+        @keyframes impact {
+            0% { transform: scale(0); opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { transform: scale(2); opacity: 0; }
+        }
+        
+        @keyframes pulseHeart {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        .floating-hearts {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        
+        .floating-heart {
+            position: absolute;
+            font-size: 1.2rem;
+            opacity: 0.5;
+            animation: floatHeart linear infinite;
+        }
+        
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="title">I LOVE YOU</div>
+    <div id="container"></div>
+    <div class="stars" id="stars"></div>
+    <div class="floating-hearts" id="floatingHearts"></div>
+    <div class="completion-message" id="completionMessage">Heart formed!</div>
+    
+    <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    
+    <div class="instructions">Particles are joining to form a 3D heart...</div>
 
-<div id="escena">
-
-  <!-- CIELO (SVG externo) -->
-  <object id="cielo" type="image/svg+xml" data="Luna.svg"></object>
-
-  <!-- ESTRELLAS (generadas por JS) -->
-  <svg id="estrellas"></svg>
-
-  <!-- PASTO + TULIPANES -->
-  <object id="pasto" type="image/svg+xml" data="Tulipan.svg"></object>
-
-  <!-- PERRITO -->
-  <object id="perrito" type="image/svg+xml" data="Perrito.svg"></object>
-
-</div>
-
-<script src="script.js"></script>
+    <script>
+        // Variables globales
+        let scene, camera, renderer, heartParticles;
+        let animationPhase = 0; // 0: forming heart, 1: heart formed
+        let formationProgress = 0;
+        let progressBar = document.getElementById('progressBar');
+        let loveMeteorElements = [];
+        let impactEffects = [];
+        let lastMeteorTime = 0;
+        let meteorInterval = 300;
+        let completionMessage = document.getElementById('completionMessage');
+        let instructions = document.querySelector('.instructions');
+        let floatingHearts = document.getElementById('floatingHearts');
+        
+        // Crear estrellas de fondo
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            const starCount = 800;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.classList.add('star');
+                
+                // Posición aleatoria
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                
+                // Tamaño aleatorio
+                const size = Math.random() * 3 + 1;
+                star.style.width = `${size}px`;
+                star.style.height = `${size}px`;
+                
+                // Duración y retraso aleatorio para la animación
+                const duration = Math.random() * 5 + 3;
+                const delay = Math.random() * 5;
+                star.style.setProperty('--duration', `${duration}s`);
+                star.style.setProperty('--delay', `${delay}s`);
+                
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Crear corazones flotantes
+        function createFloatingHearts() {
+            const heartCount = 30;
+            
+            for (let i = 0; i < heartCount; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('floating-heart');
+                heart.innerHTML = '❤';
+                
+                // Posición inicial aleatoria en la parte inferior
+                heart.style.left = `${Math.random() * 100}%`;
+                heart.style.bottom = `-50px`;
+                
+                // Color aleatorio (tonos rosas/rojos)
+                const hue = 330 + Math.random() * 20;
+                heart.style.color = `hsl(${hue}, 100%, 70%)`;
+                
+                // Tamaño aleatorio
+                const size = 0.8 + Math.random() * 1.5;
+                heart.style.fontSize = `${size}rem`;
+                
+                // Animación
+                const duration = 10 + Math.random() * 20;
+                const delay = Math.random() * 15;
+                heart.style.animation = `floatHeart ${duration}s linear infinite`;
+                heart.style.animationDelay = `${delay}s`;
+                
+                floatingHearts.appendChild(heart);
+            }
+        }
+        
+        // Crear meteorito "I LOVE YOU"
+        function createLoveMeteor() {
+            const loveMeteor = document.createElement('div');
+            loveMeteor.classList.add('i-love-you-meteor');
+            loveMeteor.textContent = "I LOVE YOU";
+            
+            // Posición inicial aleatoria en la parte superior
+            const startX = Math.random() * window.innerWidth;
+            loveMeteor.style.left = `${startX}px`;
+            loveMeteor.style.top = `-50px`;
+            
+            // Tamaño aleatorio
+            const size = 1 + Math.random() * 0.5;
+            loveMeteor.style.fontSize = `${size}rem`;
+            
+            // Color aleatorio (tonos rosas/rojos)
+            const hue = 330 + Math.random() * 20;
+            loveMeteor.style.color = `hsl(${hue}, 100%, 70%)`;
+            
+            // Animación de caída
+            const duration = 1 + Math.random() * 2;
+            loveMeteor.style.animation = `meteorFall ${duration}s linear forwards`;
+            
+            document.body.appendChild(loveMeteor);
+            loveMeteorElements.push(loveMeteor);
+            
+            // Crear efecto de impacto después de un retraso
+            setTimeout(() => {
+                createImpactEffect(startX);
+            }, duration * 800);
+            
+            // Eliminar después de la animación
+            setTimeout(() => {
+                loveMeteor.remove();
+                loveMeteorElements = loveMeteorElements.filter(el => el !== loveMeteor);
+            }, duration * 1000);
+        }
+        
+        // Crear efecto de impacto
+        function createImpactEffect(x) {
+            const impact = document.createElement('div');
+            impact.classList.add('impact-effect');
+            impact.style.left = `${x}px`;
+            impact.style.bottom = `20px`;
+            
+            // Tamaño aleatorio
+            const size = 50 + Math.random() * 50;
+            impact.style.width = `${size}px`;
+            impact.style.height = `${size}px`;
+            
+            // Animación
+            const duration = 0.8 + Math.random() * 0.5;
+            impact.style.animation = `impact ${duration}s ease-out forwards`;
+            
+            document.body.appendChild(impact);
+            impactEffects.push(impact);
+            
+            // Eliminar después de la animación
+            setTimeout(() => {
+                impact.remove();
+                impactEffects = impactEffects.filter(el => el !== impact);
+            }, duration * 1000);
+        }
+        
+        // Inicializar Three.js
+        function initThreeJS() {
+            // Crear escena
+            scene = new THREE.Scene();
+            scene.background = null;
+            
+            // Crear cámara
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 40;
+            
+            // Crear renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Crear partículas del corazón
+            createHeartParticles();
+            
+            // Agregar luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+            scene.add(ambientLight);
+            
+            const pointLight = new THREE.PointLight(0xff2a6d, 1.8, 100);
+            pointLight.position.set(15, 15, 15);
+            scene.add(pointLight);
+            
+            const pointLight2 = new THREE.PointLight(0xffb6c1, 1.2, 100);
+            pointLight2.position.set(-15, -15, 15);
+            scene.add(pointLight2);
+            
+            const pointLight3 = new THREE.PointLight(0xd40078, 1.0, 100);
+            pointLight3.position.set(0, 0, 20);
+            scene.add(pointLight3);
+            
+            // Configurar evento de ventana
+            window.addEventListener('resize', onWindowResize);
+            
+            // Iniciar animación
+            animate();
+        }
+        
+        // Función para generar posición de corazón (orientación corregida)
+        function heartPosition(t, scale) {
+            // Ajustar t para que cubra todo el corazón
+            t = t * Math.PI * 2;
+            
+            // Ecuación paramétrica del corazón - orientación correcta
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = 13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t);
+            const z = (Math.random() - 0.5) * 4;
+            
+            return new THREE.Vector3(x * scale, y * scale, z * scale);
+        }
+        
+        function createHeartParticles() {
+            // Crear geometría para las partículas
+            const particleCount = 6000;
+            const positions = new Float32Array(particleCount * 3);
+            const colors = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+            const startPositions = new Float32Array(particleCount * 3);
+            const targetPositions = new Float32Array(particleCount * 3);
+            
+            // Calcular posiciones objetivo (forma de corazón)
+            for (let i = 0; i < particleCount; i++) {
+                const i3 = i * 3;
+                const scale = 0.9 + Math.random() * 0.5;
+                
+                // Posición objetivo en forma de corazón
+                const heartPos = heartPosition(i / particleCount, scale);
+                
+                targetPositions[i3] = heartPos.x;
+                targetPositions[i3 + 1] = heartPos.y;
+                targetPositions[i3 + 2] = heartPos.z;
+                
+                // Posición inicial aleatoria en un cubo grande
+                const spread = 140;
+                startPositions[i3] = (Math.random() - 0.5) * spread;
+                startPositions[i3 + 1] = (Math.random() - 0.5) * spread;
+                startPositions[i3 + 2] = (Math.random() - 0.5) * spread;
+                
+                // Posición actual = posición inicial
+                positions[i3] = startPositions[i3];
+                positions[i3 + 1] = startPositions[i3 + 1];
+                positions[i3 + 2] = startPositions[i3 + 2];
+                
+                // Colores (tonos rosas más vibrantes)
+                colors[i3] = 0.95 + Math.random() * 0.05;     // R
+                colors[i3 + 1] = 0.2 + Math.random() * 0.2;  // G
+                colors[i3 + 2] = 0.4 + Math.random() * 0.2;  // B
+                
+                // Tamaños más pequeños para mejor definición
+                sizes[i] = Math.random() * 0.4 + 0.1;
+            }
+            
+            // Crear geometría de búfer
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            
+            // Guardar las posiciones
+            geometry.startPositions = startPositions;
+            geometry.targetPositions = targetPositions;
+            
+            // Material de puntos (partículas más pequeñas)
+            const material = new THREE.PointsMaterial({
+                size: 0.3,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.95,
+                sizeAttenuation: true,
+                blending: THREE.AdditiveBlending
+            });
+            
+            // Crear sistema de partículas
+            heartParticles = new THREE.Points(geometry, material);
+            scene.add(heartParticles);
+            
+            // Posicionar el corazón
+            heartParticles.position.y = 0;
+        }
+        
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Crear meteoritos periódicamente
+            const now = Date.now();
+            if (now - lastMeteorTime > meteorInterval) {
+                createLoveMeteor();
+                lastMeteorTime = now;
+                
+                // Variar el intervalo para hacerlo más natural
+                meteorInterval = 150 + Math.random() * 250;
+            }
+            
+            // Fase 0: Formando el corazón
+            if (animationPhase === 0) {
+                formationProgress = Math.min(1, formationProgress + 0.003);
+                progressBar.style.width = `${formationProgress * 100}%`;
+                
+                const positions = heartParticles.geometry.attributes.position.array;
+                const startPositions = heartParticles.geometry.startPositions;
+                const targetPositions = heartParticles.geometry.targetPositions;
+                
+                for (let i = 0; i < positions.length; i += 3) {
+                    // Calcular posición intermedia
+                    positions[i] = startPositions[i] + (targetPositions[i] - startPositions[i]) * formationProgress;
+                    positions[i+1] = startPositions[i+1] + (targetPositions[i+1] - startPositions[i+1]) * formationProgress;
+                    positions[i+2] = startPositions[i+2] + (targetPositions[i+2] - startPositions[i+2]) * formationProgress;
+                }
+                
+                heartParticles.geometry.attributes.position.needsUpdate = true;
+                
+                // Cuando se completa la formación
+                if (formationProgress >= 1) {
+                    animationPhase = 1;
+                    
+                    // Mostrar mensaje de completado
+                    completionMessage.style.opacity = "1";
+                    completionMessage.style.transform = "translateY(0)";
+                    completionMessage.textContent = "";
+                    
+                    // Actualizar instrucciones
+                    instructions.textContent = "";
+                    
+                    // Ocultar barra de progreso después de un tiempo
+                    setTimeout(() => {
+                        document.querySelector('.progress-container').style.opacity = "0";
+                    }, 1500);
+                }
+            }
+            
+            // Fase 1: Corazón formado
+            else if (animationPhase === 1) {
+                // Hacer que las partículas "respiren"
+                const time = Date.now() * 0.001;
+                const positions = heartParticles.geometry.attributes.position.array;
+                const targetPositions = heartParticles.geometry.targetPositions;
+                
+                for (let i = 0; i < positions.length; i += 3) {
+                    const originalX = targetPositions[i];
+                    const originalY = targetPositions[i+1];
+                    const originalZ = targetPositions[i+2];
+                    
+                    const distance = Math.sqrt(originalX * originalX + originalY * originalY + originalZ * originalZ);
+                    const pulse = Math.sin(time * 0.5 + distance * 0.1) * 0.18 + 1;
+                    
+                    positions[i] = originalX * pulse;
+                    positions[i+1] = originalY * pulse;
+                    positions[i+2] = originalZ * pulse;
+                }
+                
+                heartParticles.geometry.attributes.position.needsUpdate = true;
+                
+                // Rotación suave del corazón
+                heartParticles.rotation.y += 0.001;
+                heartParticles.rotation.x = Math.sin(time * 0.3) * 0.1;
+                
+                // Desvanecer mensaje de completado
+                if (parseFloat(completionMessage.style.opacity) > 0) {
+                    completionMessage.style.opacity = parseFloat(completionMessage.style.opacity) - 0.005;
+                }
+            }
+            
+            renderer.render(scene, camera);
+        }
+        
+        // Inicializar cuando el documento esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            createStars();
+            createFloatingHearts();
+            initThreeJS();
+            
+            // Comenzar con algunos meteoritos
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => createLoveMeteor(), i * 300);
+            }
+        });
+    </script>
 </body>
 </html>
