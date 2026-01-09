@@ -2,9 +2,8 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<title>Bernés 3D bajo la luna</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Corazón 3D + Lluvia de frases</title>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
@@ -12,206 +11,197 @@ html,body{
   margin:0;
   height:100%;
   overflow:hidden;
-  background:#05050a;
-  font-family: Arial, Helvetica, sans-serif;
+  background:#02030a;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+/* FRASES ESTRELLAS */
+.star-text{
+  position:fixed;
   color:white;
-}
-
-/* TÍTULO */
-.title{
-  position:fixed;
-  top:20px;
-  width:100%;
-  text-align:center;
-  font-size:3rem;
-  letter-spacing:4px;
-  color:#ff2a6d;
-  text-shadow:0 0 20px #ff2a6d;
-  z-index:20;
-  animation:pulse 3s infinite;
-}
-@keyframes pulse{
-  0%,100%{transform:scale(1)}
-  50%{transform:scale(1.05)}
-}
-
-/* THREE */
-#scene{
-  position:fixed;
-  inset:0;
-  z-index:1;
-}
-
-/* FRASES */
-.phrase{
-  position:fixed;
-  left:50%;
-  transform:translateX(-50%);
-  padding:6px 12px;
-  border-radius:10px;
+  font-size:14px;
   font-weight:bold;
-  background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(6px);
-  color:white;
-  text-shadow:0 0 10px rgba(0,0,0,0.6);
-  pointer-events:auto;
+  pointer-events:none;
+  text-shadow:
+    0 0 8px #fff,
+    0 0 15px #8fd3ff;
+  white-space:nowrap;
   z-index:10;
-  will-change:transform,opacity;
 }
 </style>
 </head>
 
 <body>
 
-<div class="title">I LOVE YOU</div>
-<div id="scene"></div>
-
 <script>
-/* ==========================
+/* ======================
    FRASES
-========================== */
+====================== */
 const PHRASES = [
-  "Eres mi lugar favorito 💖",
-  "Contigo todo tiene sentido",
-  "Mi corazón late por ti",
-  "Siempre tú",
-  "Amarte es fácil",
-  "Eres mi paz",
-  "Te elegiría otra vez",
-  "Mi amor eterno ❤️"
+  "Eres mi estrella ✨",
+  "Siempre contigo 💖",
+  "Amor infinito",
+  "Mi lugar seguro",
+  "Bajo esta luna, tú",
+  "Eres mi hogar",
+  "Te elijo siempre",
+  "Brillas en mi vida"
 ];
 
-let phrases = [];
-const MAX_PHRASES = 14;
+let starsText = [];
 
-/* ==========================
-   THREE.JS
-========================== */
-let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, innerWidth/innerHeight, 0.1, 1000);
-camera.position.z = 45;
+/* ======================
+   ESCENA
+====================== */
+const scene = new THREE.Scene();
 
-let renderer = new THREE.WebGLRenderer({alpha:true, antialias:true});
+const camera = new THREE.PerspectiveCamera(
+  70, innerWidth/innerHeight, 0.1, 1000
+);
+camera.position.set(0,10,45);
+
+const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio);
-document.getElementById('scene').appendChild(renderer.domElement);
+document.body.appendChild(renderer.domElement);
 
-/* LUCES */
-scene.add(new THREE.AmbientLight(0xffffff, 0.3));
-let light = new THREE.PointLight(0xff2a6d, 2, 120);
-light.position.set(20,20,20);
-scene.add(light);
+/* ======================
+   LUCES
+====================== */
+scene.add(new THREE.AmbientLight(0xffffff,0.25));
 
-/* CORAZÓN 3D */
-const COUNT = 5000;
-const positions = new Float32Array(COUNT*3);
-const start = new Float32Array(COUNT*3);
+const moonLight = new THREE.PointLight(0xbfdcff,2,300);
+moonLight.position.set(-30,50,-20);
+scene.add(moonLight);
 
-function heart(t){
-  t *= Math.PI*2;
-  return {
-    x:16*Math.pow(Math.sin(t),3),
-    y:13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t),
-    z:(Math.random()-0.5)*4
-  }
+/* ======================
+   LUNA WOW 🌙
+====================== */
+const moonGeo = new THREE.SphereGeometry(10,64,64);
+const moonMat = new THREE.MeshStandardMaterial({
+  color:0xe6f2ff,
+  roughness:0.7,
+  metalness:0.05,
+  emissive:0x99ccff,
+  emissiveIntensity:0.25
+});
+const moon = new THREE.Mesh(moonGeo, moonMat);
+moon.position.set(-25,35,-60);
+scene.add(moon);
+
+/* HALO */
+const haloGeo = new THREE.SphereGeometry(11.5,32,32);
+const haloMat = new THREE.MeshBasicMaterial({
+  color:0x99ccff,
+  transparent:true,
+  opacity:0.15
+});
+const halo = new THREE.Mesh(haloGeo, haloMat);
+halo.position.copy(moon.position);
+scene.add(halo);
+
+/* ======================
+   MONTAÑA
+====================== */
+const mountainGeo = new THREE.ConeGeometry(80,35,64,12);
+const mountainMat = new THREE.MeshStandardMaterial({
+  color:0x0a0f1e,
+  roughness:1
+});
+const mountain = new THREE.Mesh(mountainGeo, mountainMat);
+mountain.position.y = -18;
+scene.add(mountain);
+
+/* ======================
+   BERNÉS DE MONTAÑA (PARTÍCULAS)
+====================== */
+const COUNT = 6000;
+const pos = new Float32Array(COUNT*3);
+
+/* Silueta aproximada */
+function dogShape(t){
+  const x = (Math.sin(t*3)*8) + Math.cos(t)*12;
+  const y = Math.cos(t*2)*6;
+  const z = (Math.random()-0.5)*4;
+  return {x,y,z};
 }
 
 for(let i=0;i<COUNT;i++){
-  let p = heart(i/COUNT);
-  positions[i*3]   = p.x;
-  positions[i*3+1] = p.y;
-  positions[i*3+2] = p.z;
-
-  start[i*3]   = (Math.random()-0.5)*120;
-  start[i*3+1] = (Math.random()-0.5)*120;
-  start[i*3+2] = (Math.random()-0.5)*120;
+  let p = dogShape(Math.random()*Math.PI*2);
+  pos[i*3]   = p.x;
+  pos[i*3+1] = p.y;
+  pos[i*3+2] = p.z;
 }
 
-let geometry = new THREE.BufferGeometry();
-geometry.setAttribute('position', new THREE.BufferAttribute(start,3));
-geometry.target = positions;
+const dogGeo = new THREE.BufferGeometry();
+dogGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
 
-let material = new THREE.PointsMaterial({
+const dogMat = new THREE.PointsMaterial({
   size:0.35,
-  color:0xff2a6d,
+  color:0xffffff,
   transparent:true,
-  opacity:0.95,
+  opacity:0.9,
   blending:THREE.AdditiveBlending
 });
 
-let heartPoints = new THREE.Points(geometry, material);
-scene.add(heartPoints);
+const dog = new THREE.Points(dogGeo,dogMat);
+dog.position.y = -2;
+scene.add(dog);
 
-let progress = 0;
-
-/* ==========================
-   FRASES
-========================== */
-function spawnPhrase(x = Math.random()*innerWidth){
-  if(phrases.length >= MAX_PHRASES) return;
-  let el = document.createElement('div');
-  el.className = 'phrase';
+/* ======================
+   ESTRELLAS FUGACES + FRASES
+====================== */
+function spawnStar(){
+  const el = document.createElement("div");
+  el.className = "star-text";
   el.textContent = PHRASES[Math.floor(Math.random()*PHRASES.length)];
-  el.style.top = '-40px';
-  el.style.left = x + 'px';
   document.body.appendChild(el);
 
-  phrases.push({
+  starsText.push({
     el,
-    x,
-    y:-40,
-    vy:30 + Math.random()*40
+    x: Math.random()*innerWidth,
+    y: -50,
+    vx: -2 - Math.random()*2,
+    vy: 4 + Math.random()*3,
+    life: 0
   });
 }
 
-setInterval(()=>spawnPhrase(),600);
+setInterval(spawnStar, 900);
 
-/* ==========================
-   INTERACCIÓN
-========================== */
-let pointer = {x:-999,y:-999};
-addEventListener('mousemove',e=>{
-  pointer.x=e.clientX;
-  pointer.y=e.clientY;
-});
-addEventListener('click',e=>{
-  spawnPhrase(e.clientX);
-});
-
-/* ==========================
+/* ======================
    ANIMACIÓN
-========================== */
-let clock = new THREE.Clock();
+====================== */
+const clock = new THREE.Clock();
 
 function animate(){
   requestAnimationFrame(animate);
-  let t = clock.getElapsedTime();
+  const t = clock.getElapsedTime();
 
-  /* FORMAR CORAZÓN */
-  progress = Math.min(1, progress + 0.004);
-  let pos = geometry.attributes.position.array;
-  let target = geometry.target;
+  /* perro respirando */
+  dog.rotation.y = Math.sin(t*0.4)*0.15;
+  dog.scale.set(
+    1+Math.sin(t*2)*0.02,
+    1+Math.sin(t*2)*0.02,
+    1
+  );
 
-  for(let i=0;i<pos.length;i++){
-    pos[i] += (target[i]-pos[i]) * progress * 0.02;
-  }
-  geometry.attributes.position.needsUpdate = true;
+  /* luna sutil */
+  halo.scale.setScalar(1 + Math.sin(t)*0.03);
 
-  /* PULSO + ROTACIÓN */
-  let pulse = 1 + Math.sin(t*2)*0.05;
-  heartPoints.scale.set(pulse,pulse,pulse);
-  heartPoints.rotation.y += 0.002;
-  heartPoints.rotation.x = Math.sin(t*0.5)*0.1;
+  /* estrellas */
+  for(let i=starsText.length-1;i>=0;i--){
+    const s = starsText[i];
+    s.x += s.vx;
+    s.y += s.vy;
+    s.life += 1;
 
-  /* FRASES */
-  for(let i=phrases.length-1;i>=0;i--){
-    let p = phrases[i];
-    p.y += p.vy * 0.016;
-    p.el.style.transform = `translate(-50%, ${p.y}px)`;
+    s.el.style.transform =
+      `translate(${s.x}px, ${s.y}px)`;
 
-    if(p.y > innerHeight+80){
-      p.el.remove();
-      phrases.splice(i,1);
+    if(s.y > innerHeight+100){
+      s.el.remove();
+      starsText.splice(i,1);
     }
   }
 
@@ -219,8 +209,10 @@ function animate(){
 }
 animate();
 
-/* RESIZE */
-addEventListener('resize',()=>{
+/* ======================
+   RESIZE
+====================== */
+addEventListener("resize",()=>{
   camera.aspect = innerWidth/innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
